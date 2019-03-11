@@ -2,6 +2,7 @@
 #include <eosiolib/fixed_bytes.hpp>
 
 using namespace eosio;
+using namespace std;
 
 /*
  * This contract has to relay canceldelay actions because on the minimum auth requirements of eosio::canceldelay
@@ -12,8 +13,10 @@ namespace eosdac {
     public:
         using contract::contract;
 
-        ACTION cancel(permission_level canceling_auth, checksum256 trx_id){
+        ACTION cancel(permission_level canceling_auth, checksum256 trx_id, string reason){
             require_auth(canceling_auth.actor);
+
+            eosio_assert(reason.size() <= 256, "Reason message is too long");
 
             // upgrade to active permission (needs to be given to this contract)
             action(permission_level{canceling_auth.actor, "active"_n},
